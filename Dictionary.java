@@ -1,7 +1,12 @@
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Dictionary {
 
+	private static final String FILENAME = "dictionary.txt";
+	
 	public static void main(String[] args) {
 		// Get the user input for dictionary word
 		System.out.print("Hey you... put in a dictionary word: ");
@@ -12,5 +17,18 @@ public class Dictionary {
 		
 		System.out.println(word + " " + converted_word);
 		sc.close();
+		
+		// Import dictionary
+		try (BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
+			String sCurrentLine;
+			
+			for(int i = 0; i < 10; i++) {
+				if((sCurrentLine = br.readLine()) != null){
+					System.out.println(sCurrentLine);
+				}
+			}
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 }
