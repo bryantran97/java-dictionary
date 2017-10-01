@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,7 +25,8 @@ public class Dictionary {
 			
 			for(int i = 0; i < 10; i++) {
 				if((sCurrentLine = br.readLine()) != null){
-					System.out.println(sCurrentLine);
+					String[] parts = sCurrentLine.split(Pattern.quote("|"));
+					System.out.println(parts[0] + parts[1] + parts[2]);
 				}
 			}
 		} catch (IOException e){
