@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.io.BufferedReader;
@@ -27,62 +28,39 @@ public class Dictionary {
 	//      Linear Probing
 	// ========================
 	public static class LinearProbing {
-		int tableSize = 13;
-		int numElements = 0;	
-		// ~~~~~~~~~~~~~~ //
-		//     Hashing    //
-		// ~~~~~~~~~~~~~~ //
+		int tableSize = 262147;
+		int numElements = 0;
+		keyValue[] lpArray = new keyValue[tableSize];
+		
+		// hash function
 		public int hash(String word) {
 			int hash = 0;
 			for (int i = 0; i < word.length(); i++){
 				hash = (hash << 5) - hash + word.charAt(i);
 			}
-			
 			return Math.abs(hash % tableSize);
 		}
-		// ~~~~~~~~~~~~~~ //
-		//      Array     //
-		// ~~~~~~~~~~~~~~ //
-		public keyValue[] getArray() {
-			if(numElements >= (double)tableSize/2) {
-				resize();
-			}
-			keyValue[] lpArray = new keyValue[tableSize];
-			
-			return lpArray;
+
+		// return size
+		public int size(){
+			return tableSize;
 		}
-		// ~~~~~~~~~~~~~~ //
-		//     Resize     //
-		// ~~~~~~~~~~~~~~ //
-		public void resize(){
-			tableSize = 2 * tableSize;
-		}
-		// ~~~~~~~~~~~~~~ //
-		//      LAMBDA    //
-		// ~~~~~~~~~~~~~~ //
+		
+		// return lambda
 		public double lambda(){
-			double lambda = ((double) numElements)/tableSize;
+			double lambda = ((double)numElements) / tableSize;
 			return lambda;
 		}
-		// ~~~~~~~~~~~~~~ //
-		//     Insert     //
-		// ~~~~~~~~~~~~~~ //
-		public void insert(String word, String classification, String definition, String converted_word){
-			// retrieve hash key
-			int key = hash(word);
-			int key_check = hash(converted_word);
-			// create the object
-			keyValue kvp = new keyValue(key, word, classification, definition);
-			// check if the number of elements is half the size of the table size
+		
+		// insert
+		public void insert(String word, String classification, String definition){
+			int key = hash(word);	// retrieve hash key
+			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
 			
-			keyValue[] lpArray = getArray();
-			// check if the index is taken if not put in the index
 			if(lpArray[key] == null){
 				lpArray[key] = kvp;
 			} else {
-				// if it is, go and check all the next ones till it is null
 				while(lpArray[key] != null) {
-					// probe up one
 					key = (key + 1) % tableSize;
 				}
 				lpArray[key] = kvp;
@@ -112,8 +90,9 @@ public class Dictionary {
 			
 			while((sCurrentLine = br.readLine()) != null) {
 				String[] parts = sCurrentLine.split(Pattern.quote("|"));
-				lp.insert(parts[0], parts[1], parts[2], converted_word);
+				lp.insert(parts[0], parts[1], parts[2]);
 			}
+			System.out.println(lp.tableSize + " " + lp.numElements + " " + lp.lambda());
 		} catch (IOException e){
 			e.printStackTrace();
 		}
