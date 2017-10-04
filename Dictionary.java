@@ -28,49 +28,70 @@ public class Dictionary {
 	// ========================
 	public static class LinearProbing {
 		int tableSize = 13;
-		int numElements = 0;
-		keyValue[] lpArray = new keyValue[tableSize];
-		
+		int numElements = 0;	
+		// ~~~~~~~~~~~~~~ //
+		//     Hashing    //
+		// ~~~~~~~~~~~~~~ //
 		public int hash(String word) {
 			int hash = 0;
 			for (int i = 0; i < word.length(); i++){
 				hash = (hash << 5) - hash + word.charAt(i);
 			}
 			
-			return Math.abs(hash % 524287);
+			return Math.abs(hash % tableSize);
 		}
-		
+		// ~~~~~~~~~~~~~~ //
+		//      Array     //
+		// ~~~~~~~~~~~~~~ //
+		public keyValue[] getArray() {
+			if(numElements >= (double)tableSize/2) {
+				tableSize = resize(tableSize);
+			}
+			keyValue[] lpArray = new keyValue[tableSize];
+			
+			return lpArray;
+		}
+		// ~~~~~~~~~~~~~~ //
+		//     Resize     //
+		// ~~~~~~~~~~~~~~ //
 		public int resize(int size){
 			size = 2 * size;
 			return size;
 		}
-		
-		// Insert
+		// ~~~~~~~~~~~~~~ //
+		//      LAMBDA    //
+		// ~~~~~~~~~~~~~~ //
+		public double lambda(){
+			double lambda = ((double) numElements)/tableSize;
+			return lambda;
+		}
+		// ~~~~~~~~~~~~~~ //
+		//     Insert     //
+		// ~~~~~~~~~~~~~~ //
 		public void insert(String word, String classification, String definition){
-			int key = hash(word);	// retrieve hash key
-			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
-			if(numElements >= tableSize/2) { // resize if more elements than half elements in the array
-				int newSize = resize(tableSize);
-				keyValue[] newArray = new keyValue[newSize];
-				for(int i = 0; i < tableSize; i++){
-					newArray[i] = lpArray[i];
-				}
-				// make new array
-			}
+			// retrieve hash key
+			int key = hash(word);
+			// create the object
+			keyValue kvp = new keyValue(key, word, classification, definition);
+			// check if the number of elements is half the size of the table size
 			
+			keyValue[] lpArray = getArray();
+			// check if the index is taken if not put in the index
 			if(lpArray[key] == null){
 				lpArray[key] = kvp;
 			} else {
-				int count = 0;
+				// if it is, go and check all the next ones till it is null
 				while(lpArray[key] != null) {
-					key = key + count++;
+					// probe up one
+					key = (key + 1) % tableSize;
 				}
-				
 				lpArray[key] = kvp;
 			}
-			
 			numElements++;
 		}
+		// ~~~~~~~~~~~~~~ //
+		//      FIND      //
+		// ~~~~~~~~~~~~~~ //
 	}
 			
 	// ========================
@@ -92,12 +113,12 @@ public class Dictionary {
 		try (BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
 			String sCurrentLine;
 			
-			for(int i = 0; i < 10; i++) {
-				if((sCurrentLine = br.readLine()) != null){
-					String[] parts = sCurrentLine.split(Pattern.quote("|"));
-					System.out.println(lp.hash(parts[0]));
-				}
+			while((sCurrentLine = br.readLine()) != null) {
+				String[] parts = sCurrentLine.split(Pattern.quote("|"));
+				lp.insert(parts[0], parts[1], parts[2]);
 			}
+			
+			System.out.println(lp.tableSize);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
