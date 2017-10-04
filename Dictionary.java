@@ -45,7 +45,7 @@ public class Dictionary {
 		// ~~~~~~~~~~~~~~ //
 		public keyValue[] getArray() {
 			if(numElements >= (double)tableSize/2) {
-				tableSize = resize(tableSize);
+				resize();
 			}
 			keyValue[] lpArray = new keyValue[tableSize];
 			
@@ -54,9 +54,8 @@ public class Dictionary {
 		// ~~~~~~~~~~~~~~ //
 		//     Resize     //
 		// ~~~~~~~~~~~~~~ //
-		public int resize(int size){
-			size = 2 * size;
-			return size;
+		public void resize(){
+			tableSize = 2 * tableSize;
 		}
 		// ~~~~~~~~~~~~~~ //
 		//      LAMBDA    //
@@ -68,9 +67,10 @@ public class Dictionary {
 		// ~~~~~~~~~~~~~~ //
 		//     Insert     //
 		// ~~~~~~~~~~~~~~ //
-		public void insert(String word, String classification, String definition){
+		public void insert(String word, String classification, String definition, String converted_word){
 			// retrieve hash key
 			int key = hash(word);
+			int key_check = hash(converted_word);
 			// create the object
 			keyValue kvp = new keyValue(key, word, classification, definition);
 			// check if the number of elements is half the size of the table size
@@ -89,9 +89,6 @@ public class Dictionary {
 			}
 			numElements++;
 		}
-		// ~~~~~~~~~~~~~~ //
-		//      FIND      //
-		// ~~~~~~~~~~~~~~ //
 	}
 			
 	// ========================
@@ -115,10 +112,8 @@ public class Dictionary {
 			
 			while((sCurrentLine = br.readLine()) != null) {
 				String[] parts = sCurrentLine.split(Pattern.quote("|"));
-				lp.insert(parts[0], parts[1], parts[2]);
+				lp.insert(parts[0], parts[1], parts[2], converted_word);
 			}
-			
-			System.out.println(lp.tableSize);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
