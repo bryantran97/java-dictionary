@@ -28,7 +28,7 @@ public class Dictionary {
 	//      Linear Probing
 	// ========================
 	public static class LinearProbing {
-		int tableSize = 262147;
+		int tableSize = 330767;
 		int numElements = 0;
 		keyValue[] lpArray = new keyValue[tableSize];
 		
@@ -67,6 +67,19 @@ public class Dictionary {
 			}
 			numElements++;
 		}
+		
+		// find word
+		public keyValue find(String word) {
+			int key = hash(word);
+			if(lpArray[key].key == key){
+				return lpArray[key];
+			} else {
+				while(lpArray[key].key != key) {
+					key = (key + 1) % tableSize;
+				}
+				return lpArray[key];
+			}
+		}
 	}
 			
 	// ========================
@@ -93,6 +106,7 @@ public class Dictionary {
 				lp.insert(parts[0], parts[1], parts[2]);
 			}
 			System.out.println(lp.tableSize + " " + lp.numElements + " " + lp.lambda());
+			System.out.println(lp.find(converted_word).value);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
