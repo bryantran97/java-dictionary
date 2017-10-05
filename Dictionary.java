@@ -30,6 +30,7 @@ public class Dictionary {
 	public static class LinearProbing {
 		int tableSize = 330767;
 		int numElements = 0;
+		int bounce = 0;
 		keyValue[] lpArray = new keyValue[tableSize];
 		
 		// hash function
@@ -76,8 +77,71 @@ public class Dictionary {
 			} else {
 				while(lpArray[key].key != key) {
 					key = (key + 1) % tableSize;
+					bounce++;
 				}
 				return lpArray[key];
+			}
+		}
+	}
+	
+	// ========================
+	//      Quadratic Probing
+	// ========================
+	public static class QuadraticProbing {
+		int tableSize = 319829;
+		int numElements = 0;
+		int bounce = 0;
+		keyValue[] qpArray = new keyValue[tableSize];
+		
+		// hash function
+		public int hash(String word) {
+			int hash = 0;
+			for (int i = 0; i < word.length(); i++){
+				hash = (hash << 5) - hash + word.charAt(i);
+			}
+			return Math.abs(hash % tableSize);
+		}
+
+		// return size
+		public int size(){
+			return tableSize;
+		}
+		
+		// return lambda
+		public double lambda(){
+			double lambda = ((double)numElements) / tableSize;
+			return lambda;
+		}
+		
+		// insert
+		public void insert(String word, String classification, String definition){
+			int key = hash(word);	// retrieve hash key
+			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
+			
+			if(qpArray[key] == null){
+				qpArray[key] = kvp;
+			} else {
+				int count = 1;
+				while(qpArray[key] != null) {
+					key = (key + (count * count++)) % tableSize;
+				}
+				qpArray[key] = kvp;
+			}
+			numElements++;
+		}
+		
+		// find word
+		public keyValue find(String word) {
+			int key = hash(word);
+			if(qpArray[key].key == key){
+				return qpArray[key];
+			} else {
+				int count = 1;
+				while(qpArray[key].key != key) {
+					key = (key + (count * count++)) % tableSize;
+					bounce++;
+				}
+				return qpArray[key];
 			}
 		}
 	}
@@ -94,8 +158,9 @@ public class Dictionary {
 		String converted_word = word.replaceAll(" ", "_").toLowerCase();;
 		sc.close();
 		
-		// Linear probing Array size of 524287 (prime)
+		// Probing
 		LinearProbing lp = new LinearProbing();
+		QuadraticProbing qp = new QuadraticProbing();
 		
 		// Import dictionary
 		try (BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
@@ -104,9 +169,14 @@ public class Dictionary {
 			while((sCurrentLine = br.readLine()) != null) {
 				String[] parts = sCurrentLine.split(Pattern.quote("|"));
 				lp.insert(parts[0], parts[1], parts[2]);
+				qp.insert(parts[0], parts[1], parts[2]);
 			}
-			System.out.println(lp.tableSize + " " + lp.numElements + " " + lp.lambda());
+			
 			System.out.println(lp.find(converted_word).value);
+			System.out.println("linear probing | " + " tablesize: " + lp.tableSize + " " + "lambda: " + lp.lambda() + " " + "bounce: " + lp.bounce);
+			
+			System.out.println(qp.find(converted_word).value);
+			System.out.println("quadratic probing | " + " tablesize: " + qp.tableSize + " " + "lambda: " + qp.lambda() + " " + "bounce: " + qp.bounce);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
