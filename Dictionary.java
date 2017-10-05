@@ -27,7 +27,7 @@ public class Dictionary {
 	//      Linear Probing
 	// ========================
 	public static class LinearProbing {
-		int tableSize = 330767;
+		int tableSize = 13;
 		int numElements = 0;
 		int bounce = 0;
 		keyValue[] lpArray = new keyValue[tableSize];
@@ -46,6 +46,17 @@ public class Dictionary {
 			return tableSize;
 		}
 		
+		// resize
+		public void resize() {
+			keyValue[] doubledLPArray = new keyValue[tableSize*2];
+			for(int i = 0; i < tableSize; i++){
+				doubledLPArray[i] = lpArray[i];
+			}
+			
+			tableSize = tableSize * 2;
+			lpArray = doubledLPArray;
+		}
+		
 		// return lambda
 		public double lambda(){
 			double lambda = ((double)numElements) / tableSize;
@@ -56,6 +67,10 @@ public class Dictionary {
 		public void insert(String word, String classification, String definition){
 			int key = hash(word);	// retrieve hash key
 			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
+			
+			if(numElements >= (tableSize/2)){
+				resize();
+			}
 			
 			if(lpArray[key] == null){
 				lpArray[key] = kvp;
@@ -87,7 +102,7 @@ public class Dictionary {
 	//      Quadratic Probing
 	// ========================
 	public static class QuadraticProbing {
-		int tableSize = 319829;
+		int tableSize = 13;
 		int numElements = 0;
 		int bounce = 0;
 		keyValue[] qpArray = new keyValue[tableSize];
@@ -112,10 +127,25 @@ public class Dictionary {
 			return lambda;
 		}
 		
+		// resize
+		public void resize() {
+			keyValue[] doubledQPArray = new keyValue[tableSize*2];
+			for(int i = 0; i < tableSize; i++){
+				doubledQPArray[i] = qpArray[i];
+			}
+			
+			tableSize = tableSize * 2;
+			qpArray = doubledQPArray;
+		}
+		
 		// insert
 		public void insert(String word, String classification, String definition){
 			int key = hash(word);	// retrieve hash key
 			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
+			
+			if(numElements >= (tableSize/2)){
+				resize();
+			}
 			
 			if(qpArray[key] == null){
 				qpArray[key] = kvp;
@@ -171,11 +201,11 @@ public class Dictionary {
 				qp.insert(parts[0], parts[1], parts[2]);
 			}
 			
-			System.out.println(lp.find(converted_word).value);
 			System.out.println("linear probing | " + " tablesize: " + lp.tableSize + " " + "lambda: " + lp.lambda() + " " + "bounce: " + lp.bounce);
+			System.out.println(lp.find(converted_word).value);
 			
-			System.out.println(qp.find(converted_word).value);
 			System.out.println("quadratic probing | " + " tablesize: " + qp.tableSize + " " + "lambda: " + qp.lambda() + " " + "bounce: " + qp.bounce);
+			System.out.println(qp.find(converted_word).value);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
