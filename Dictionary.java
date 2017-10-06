@@ -174,6 +174,79 @@ public class Dictionary {
 			}
 		}
 	}
+	
+	public static class DoubleHashing {
+		int tableSize = 13;
+		int numElements = 0;
+		int bounce = 0;
+		keyValue[] dhArray = new keyValue[tableSize];
+		
+		// hash function
+		public int hash1(String word) {
+			int hash = 0;
+			for (int i = 0; i < word.length(); i++){
+				hash = (hash << 5) - hash + word.charAt(i);
+			}
+			return Math.abs(hash % tableSize);
+		}
+		
+		public int hash2(String word) {
+			int hash = 0;
+			for (int i = 0; i < word.length(); i++){
+				hash = (hash << 5) - hash + (word.charAt(i))*hash;
+			}
+			return Math.abs(hash % tableSize);
+		}
+
+		// return size
+		public int size(){
+			return tableSize;
+		}
+		
+		// return lambda
+		public double lambda(){
+			double lambda = ((double)numElements) / tableSize;
+			return lambda;
+		}
+		
+		// resize
+		public void resize() {
+			keyValue[] doubledDHArray = new keyValue[tableSize*2];
+			for(int i = 0; i < tableSize; i++){
+				doubledDHArray[i] = dhArray[i];
+			}
+			
+			tableSize = tableSize * 2;
+			dhArray = doubledDHArray;
+		}
+		
+		// insert
+		public void insert(String word, String classification, String definition){
+			int key = hash1(word);	// retrieve hash key
+			int key2 = hash2(word);
+			
+			if(numElements >= (tableSize/2)){
+				resize();
+			}
+			
+			int doubledhash = (key + key2) % tableSize;
+			
+			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
+			
+			dhArray[doubledhash] = kvp;
+			numElements++;
+		}
+		
+		// find word
+		public keyValue find(String word) {
+			int key = hash1(word);	// retrieve hash key
+			int key2 = hash2(word);
+			
+			int doubledhash = (key + key2) % tableSize;
+			
+			return dhArray[doubledhash];
+		}
+	}
 			
 	// ========================
 	//      MAIN FUNCTION
@@ -190,6 +263,7 @@ public class Dictionary {
 		// Probing
 		LinearProbing lp = new LinearProbing();
 		QuadraticProbing qp = new QuadraticProbing();
+		DoubleHashing dh = new DoubleHashing();
 		
 		// Import dictionary
 		try (BufferedReader br = new BufferedReader(new FileReader(FILENAME))){
@@ -199,6 +273,7 @@ public class Dictionary {
 				String[] parts = sCurrentLine.split(Pattern.quote("|"));
 				lp.insert(parts[0], parts[1], parts[2]);
 				qp.insert(parts[0], parts[1], parts[2]);
+				dh.insert(parts[0], parts[1], parts[2]);
 			}
 			
 			System.out.println("linear probing | " + " tablesize: " + lp.tableSize + " " + "lambda: " + lp.lambda() + " " + "bounce: " + lp.bounce);
@@ -206,6 +281,9 @@ public class Dictionary {
 			
 			System.out.println("quadratic probing | " + " tablesize: " + qp.tableSize + " " + "lambda: " + qp.lambda() + " " + "bounce: " + qp.bounce);
 			System.out.println(qp.find(converted_word).value);
+			
+			System.out.println("double hashing | " + " tablesize: " + dh.tableSize + " " + "lambda: " + dh.lambda() + " " + "bounce: " + dh.bounce);
+			System.out.println(dh.find(converted_word).value);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
