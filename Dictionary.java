@@ -25,6 +25,18 @@ public class Dictionary {
 		}
 	}
 	// ========================
+	//      Linked List
+	// ========================
+	
+	public static class Node {
+		keyValue item;
+		Node next;
+		
+		public Node(keyValue data){
+			this.item = data;
+		}
+	}
+	// ========================
 	//      Linear Probing
 	// ========================
 	public static class LinearProbing {
@@ -193,7 +205,6 @@ public class Dictionary {
 			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
 			
 			dhArray[doubledhash] = kvp;
-			numElements++;
 		}
 		
 		// find word
@@ -204,6 +215,55 @@ public class Dictionary {
 			int doubledhash = (key + key2) % tableSize;
 			
 			return dhArray[doubledhash];
+		}
+	}
+	
+	// ========================
+	//    Separate Chaining
+	// ========================
+	public static class SeparateChaining {
+		int tableSize = 330767;
+		int numElements = 0;
+		int bounce = 0;
+		Node[] scArray = new Node[tableSize];
+		
+		// hash function
+		public int hash(String word) {
+			int hash = 0;
+			for (int i = 0; i < word.length(); i++){
+				hash = (hash << 5) - hash + word.charAt(i);
+			}
+			return Math.abs(hash % tableSize);
+		}
+
+		// return size
+		public int size(){
+			return tableSize;
+		}
+		
+		// return lambda
+		public double lambda(){
+			double lambda = ((double)numElements) / tableSize;
+			return lambda;
+		}
+		
+		// insert
+		public void insert(String word, String classification, String definition){
+			int key = hash(word);	// retrieve hash key
+			keyValue kvp = new keyValue(key, word, classification, definition); // create the object
+			Node newNode = new Node(kvp);
+			
+			if(scArray[key] == null){
+				scArray[key] = newNode;
+			} else {
+				for(newNode = scArray[key]; newNode != null; newNode = newNode.next){
+					if(key == newNode.item.key){
+						newNode.item = kvp;
+						return;
+					}
+				}
+			}
+			numElements++;
 		}
 	}
 			
